@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="dist">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/htsjdk/dist/commons-jexl-2.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/htsjdk/dist/snappy-java-1.0.3-rc3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/htsjdk/dist/htsjdk-1.135.jar!/" />
+      <root url="jar://$PROJECT_DIR$/htsjdk/dist/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/htsjdk/dist/apache-ant-1.8.2-bzip2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/htsjdk/dist/xz-1.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/htsjdk/dist/commons-compress-1.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
