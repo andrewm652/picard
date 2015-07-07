@@ -51,11 +51,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static java.lang.Math.pow;
 
@@ -123,6 +121,9 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             "I.e. if the input contains 10m read pairs and MIN_IDENTICAL_BASES is set to 5, then the mean expected " +
             "group size would be approximately 10 reads.")
     public int MAX_GROUP_RATIO = 500;
+
+    @Option(doc = "Number of sorting threads.")
+    public int AMOUNT_OF_SORTING_THREADS = 4;
 
     private final Log log = Log.getInstance(EstimateLibraryComplexity.class);
 
@@ -257,6 +258,17 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         MAX_RECORDS_IN_RAM = (int) (Runtime.getRuntime().maxMemory() / PairedReadSequence.size_in_bytes) / 2;
     }
 
+    class SortingTask implements Runnable {
+        public SortingTask(SortingCollection<PairedReadSequence> sorter) {
+
+        }
+
+        @Override
+        public void run() {
+
+        }
+    }
+
     /**
      * Method that does most of the work.  Reads through the input BAM file and extracts the
      * read sequences of each read pair and sorts them via a SortingCollection.  Then traverses
@@ -278,6 +290,28 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
         // Loop through the input files and pick out the read sequences etc.
         final ProgressLogger progress = new ProgressLogger(log, (int) 1e6, "Read");
+
+
+
+
+        //NEW
+
+        List<SortingCollection<PairedReadSequence>> sortingCollectionList = new LinkedList<SortingCollection<PairedReadSequence>>();
+        for (SortingCollection<PairedReadSequence> threadsSorter : sortingCollectionList) {
+            threadsSorter = SortingCollection.newInstance(PairedReadSequence.class,
+                    new PairedReadCodec(),
+                    new PairedReadComparator(),
+                    MAX_RECORDS_IN_RAM,
+                    TMP_DIR);
+
+        }
+        ExecutorService executorService = Executors.newFixedThreadPool(AMOUNT_OF_SORTING_THREADS);
+
+        //END
+
+
+
+
         for (final File f : INPUT) {
             final Map<String, PairedReadSequence> pendingByName = new HashMap<String, PairedReadSequence>();
             final SamReader in = SamReaderFactory.makeDefault().referenceSequence(REFERENCE_SEQUENCE).open(f);
@@ -328,6 +362,10 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         }
 
         log.info("Finished reading - moving on to scanning for duplicates.");
+
+
+
+
 
         // Now go through the sorted reads and attempt to find duplicates
         final PeekableIterator<PairedReadSequence> iterator = new PeekableIterator<PairedReadSequence>(sorter.iterator());
