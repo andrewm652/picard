@@ -267,6 +267,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
      */
     @Override
     protected int doWork() {
+        long start = System.currentTimeMillis();
         for (final File f : INPUT) IOUtil.assertFileIsReadable(f);
 
         long countRead = 0;
@@ -334,8 +335,12 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             }
             CloserUtil.close(in);
         }
+
+        long finish = System.currentTimeMillis();
+        log.info("without treatment, demonstration run, ELAPSED TIME = " + (finish - start));
         log.info("read count = " + countRead);
         log.info("put count = " + countPut);
+        /*
         log.info("Finished reading - moving on to scanning for duplicates.");
 
         // Now go through the sorted reads and attempt to find duplicates
@@ -345,10 +350,14 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         final Map<String, Histogram<Integer>> opticalHistosByLibrary = new HashMap<String, Histogram<Integer>>();
 
         int groupsProcessed = 0;
+        int duplC = 0;
+        long iterations = 0;
+
         long lastLogTime = System.currentTimeMillis();
         final int meanGroupSize = Math.max(1, (recordsRead / 2) / (int) pow(4, MIN_IDENTICAL_BASES * 2));
 
         while (iterator.hasNext()) {
+            iterations++;
             // Get the next group and split it apart by library
             final List<PairedReadSequence> group = getNextGroup(iterator);
 
@@ -396,6 +405,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                             dupes.add(lhs);
                             final int duplicateCount = dupes.size();
                             duplicationHisto.increment(duplicateCount);
+                            duplC += duplicateCount;
 
                             final boolean[] flags = opticalDuplicateFinder.findOpticalDuplicates(dupes);
                             for (final boolean b : flags) {
@@ -416,7 +426,9 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         }
 
         log.info("groups processed = " + groupsProcessed);
-
+        log.info("duplicate count = " + duplC);
+        log.info("iterations = " + iterations);
+        log.info("size of read groups = " + readGroups.size());
         iterator.close();
         sorter.cleanup();
 
@@ -445,7 +457,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
         }
 
-        file.write(OUTPUT);
+        file.write(OUTPUT);*/
 
         return 0;
     }
