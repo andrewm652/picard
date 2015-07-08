@@ -25,26 +25,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="EstimateLibraryComplexity.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="EstimateLibraryComplexity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/java/picard/sam/markduplicates/EstimateLibraryComplexity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.22941822" vertical-offset="2311" max-vertical-offset="6150">
-              <caret line="415" column="66" selection-start-line="415" selection-start-column="66" selection-end-line="415" selection-end-column="66" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="4859" max-vertical-offset="9555">
+              <caret line="368" column="40" selection-start-line="368" selection-start-column="40" selection-end-line="368" selection-end-column="40" />
               <folding>
-                <element signature="e#0#28573#0" expanded="true" />
                 <element signature="imports" expanded="true" />
-                <element signature="class#PairedReadSequence#0;class#EstimateLibraryComplexity#0" expanded="false" />
-                <element signature="class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-                <element signature="method#decode#0;class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-                <element signature="class#PairedReadComparator#0;class#EstimateLibraryComplexity#0" expanded="false" />
-                <element signature="method#EstimateLibraryComplexity#0;class#EstimateLibraryComplexity#0" expanded="false" />
-                <element signature="class#Reader#0;class#EstimateLibraryComplexity#0" expanded="false" />
-                <element signature="class#Sorter#0;class#EstimateLibraryComplexity#0" expanded="false" />
-                <element signature="e#19659#19679#0" expanded="true" />
-                <element signature="e#19787#19815#0" expanded="true" />
-                <element signature="e#19901#19929#0" expanded="true" />
-                <element signature="e#22284#22304#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SortingCollection.class" pinned="false" current-in-tab="true">
+        <entry file="jar://$PROJECT_DIR$/htsjdk/dist/htsjdk-1.135.jar!/htsjdk/samtools/util/SortingCollection.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.8020833" vertical-offset="888" max-vertical-offset="4590">
+              <caret line="117" column="17" selection-start-line="117" selection-start-column="17" selection-end-line="117" selection-end-column="17" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -54,14 +52,17 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/src/java/picard/sam/TestFloor.java" />
+        <option value="$PROJECT_DIR$/src/java/picard/sam/markduplicates/TestRAM.java" />
+        <option value="$PROJECT_DIR$/src/java/picard/sam/markduplicates/TEST.java" />
         <option value="$PROJECT_DIR$/src/java/picard/sam/markduplicates/EstimateLibraryComplexity.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="45" />
+    <option name="x" value="46" />
     <option name="y" value="23" />
-    <option name="width" value="1875" />
+    <option name="width" value="1874" />
     <option name="height" value="1057" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
@@ -87,6 +88,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -106,9 +108,74 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="picard" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="picard" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="picard" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="picard" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sam" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="picard" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="picard" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sam" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="markduplicates" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -125,8 +192,76 @@
     <property name="OverrideImplement.combined" value="true" />
     <property name="OverrideImplement.overriding.sorted" value="false" />
     <property name="extract.method.default.visibility" value="private" />
+    <property name="recentsLimit" value="5" />
+    <property name="dynamic.classpath" value="false" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.TEST">
+    <configuration default="false" name="TestFloor" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="picard.sam.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="picard.sam.TestFloor" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="picard" />
+      <envs />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="TestRAM" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="picard.sam.markduplicates.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="picard.sam.markduplicates.TestRAM" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="picard" />
+      <envs />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="TEST" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="picard.sam.markduplicates.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="picard.sam.markduplicates.TEST" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="picard" />
+      <envs />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
@@ -183,19 +318,6 @@
       </ExternalSystemSettings>
       <method />
     </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <method />
-    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="" />
@@ -222,6 +344,19 @@
       <envs />
       <properties />
       <listeners />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -280,7 +415,18 @@
       <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
       <method />
     </configuration>
-    <list size="0" />
+    <list size="3">
+      <item index="0" class="java.lang.String" itemvalue="Application.TestFloor" />
+      <item index="1" class="java.lang.String" itemvalue="Application.TestRAM" />
+      <item index="2" class="java.lang.String" itemvalue="Application.TEST" />
+    </list>
+    <recent_temporary>
+      <list size="3">
+        <item index="0" class="java.lang.String" itemvalue="Application.TEST" />
+        <item index="1" class="java.lang.String" itemvalue="Application.TestRAM" />
+        <item index="2" class="java.lang.String" itemvalue="Application.TestFloor" />
+      </list>
+    </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
       <Port>5050</Port>
@@ -300,16 +446,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="45" y="23" width="1875" height="1057" extended-state="7" />
-    <editor active="true" />
+    <frame x="46" y="23" width="1874" height="1057" extended-state="7" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4834931" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.31629393" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -319,13 +464,15 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24277142" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24181223" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -346,29 +493,41 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="5" />
+      <option name="time" value="6" />
     </breakpoint-manager>
     <watches-manager />
   </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+  </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/java/picard/sam/markduplicates/EstimateLibraryComplexity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6870">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/picard/sam/markduplicates/EstimateLibraryComplexity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8160">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/java/picard/sam/markduplicates/EstimateLibraryComplexity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8685">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#28573#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="class#PairedReadSequence#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#decode#0;class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadComparator#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#EstimateLibraryComplexity#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Reader#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Sorter#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="e#19659#19679#0" expanded="true" />
-            <element signature="e#19787#19815#0" expanded="true" />
-            <element signature="e#19901#19929#0" expanded="true" />
-            <element signature="e#22284#22304#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -378,19 +537,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6945">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#28573#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="class#PairedReadSequence#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#decode#0;class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadComparator#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#EstimateLibraryComplexity#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Reader#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Sorter#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="e#19659#19679#0" expanded="true" />
-            <element signature="e#19787#19815#0" expanded="true" />
-            <element signature="e#19901#19929#0" expanded="true" />
-            <element signature="e#22284#22304#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -400,19 +547,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5160">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#28573#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="class#PairedReadSequence#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#decode#0;class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadComparator#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#EstimateLibraryComplexity#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Reader#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Sorter#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="e#19659#19679#0" expanded="true" />
-            <element signature="e#19787#19815#0" expanded="true" />
-            <element signature="e#19901#19929#0" expanded="true" />
-            <element signature="e#22284#22304#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -422,19 +557,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5685">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#28573#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="class#PairedReadSequence#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#decode#0;class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadComparator#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#EstimateLibraryComplexity#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Reader#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Sorter#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="e#19659#19679#0" expanded="true" />
-            <element signature="e#19787#19815#0" expanded="true" />
-            <element signature="e#19901#19929#0" expanded="true" />
-            <element signature="e#22284#22304#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -451,19 +574,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="7185">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#28573#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="class#PairedReadSequence#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#decode#0;class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadComparator#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#EstimateLibraryComplexity#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Reader#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Sorter#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="e#19659#19679#0" expanded="true" />
-            <element signature="e#19787#19815#0" expanded="true" />
-            <element signature="e#19901#19929#0" expanded="true" />
-            <element signature="e#22284#22304#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -472,9 +583,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="2131" max-vertical-offset="4170">
           <caret line="149" column="21" selection-start-line="149" selection-start-column="21" selection-end-line="149" selection-end-column="21" />
-          <folding>
-            <element signature="e#3136#3142#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -482,27 +591,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="746" max-vertical-offset="4560">
           <caret line="52" column="13" selection-start-line="52" selection-start-column="13" selection-end-line="52" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/htsjdk_lib_dir/htsjdk-1.135.jar!/htsjdk/samtools/SAMRecord.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.35967928" vertical-offset="4891" max-vertical-offset="20775">
-          <caret line="423" column="25" selection-start-line="423" selection-start-column="25" selection-end-line="423" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/htsjdk_lib_dir/htsjdk-1.135.jar!/htsjdk/samtools/SAMFileWriter.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.101580136" vertical-offset="0" max-vertical-offset="886">
-          <caret line="12" column="17" selection-start-line="12" selection-start-column="17" selection-end-line="12" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/htsjdk_lib_dir/htsjdk-1.135.jar!/htsjdk/samtools/SamReaderFactory.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.6701031" vertical-offset="675" max-vertical-offset="4995">
-          <caret line="40" column="22" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
         </state>
       </provider>
     </entry>
@@ -535,41 +623,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/htsjdk_lib_dir/htsjdk-1.135.jar!/htsjdk/samtools/util/PeekableIterator.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-10.2" vertical-offset="0" max-vertical-offset="660">
-          <caret line="25" column="22" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/htsjdk/src/java/htsjdk/samtools/BAMFileWriter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.115257956" vertical-offset="15" max-vertical-offset="2430">
           <caret line="39" column="6" selection-start-line="39" selection-start-column="6" selection-end-line="39" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/htsjdk_lib_dir/htsjdk-1.135.jar!/htsjdk/samtools/util/ProgressLogger.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34249714" vertical-offset="631" max-vertical-offset="1575">
-          <caret line="75" column="32" selection-start-line="75" selection-start-column="32" selection-end-line="75" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/htsjdk_lib_dir/htsjdk-1.135.jar!/htsjdk/samtools/util/IOUtil.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.10309278" vertical-offset="0" max-vertical-offset="9450">
-          <caret line="50" column="13" selection-start-line="50" selection-start-column="13" selection-end-line="50" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/java/picard/cmdline/CommandLineProgram.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33296213" vertical-offset="406" max-vertical-offset="4140">
-          <caret line="92" column="19" selection-start-line="92" selection-start-column="19" selection-end-line="92" selection-end-column="19" />
-          <folding>
-            <element signature="e#3136#3142#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -581,33 +638,52 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/htsjdk_lib_dir/htsjdk-1.135.jar!/htsjdk/samtools/util/SortingCollection.class">
+    <entry file="file://$PROJECT_DIR$/src/java/picard/sam/DuplicationMetrics.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.10309278" vertical-offset="0" max-vertical-offset="4590">
-          <caret line="31" column="33" selection-start-line="31" selection-start-column="33" selection-end-line="31" selection-end-column="33" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1875" max-vertical-offset="2760">
+          <caret line="168" column="52" selection-start-line="168" selection-start-column="52" selection-end-line="168" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/picard/Test.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.17826825" vertical-offset="0" max-vertical-offset="855">
+          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/java/picard/cmdline/CommandLineProgram.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="509" max-vertical-offset="4140">
+          <caret line="92" column="19" selection-start-line="92" selection-start-column="19" selection-end-line="92" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_51.jdk/Contents/Home/src.zip!/java/util/List.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3816" max-vertical-offset="8745">
+          <caret line="108" column="17" selection-start-line="108" selection-start-column="17" selection-end-line="108" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/java/picard/sam/markduplicates/EstimateLibraryComplexity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.22941822" vertical-offset="2311" max-vertical-offset="6150">
-          <caret line="415" column="66" selection-start-line="415" selection-start-column="66" selection-end-line="415" selection-end-column="66" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="4859" max-vertical-offset="9555">
+          <caret line="368" column="40" selection-start-line="368" selection-start-column="40" selection-end-line="368" selection-end-column="40" />
           <folding>
-            <element signature="e#0#28573#0" expanded="true" />
             <element signature="imports" expanded="true" />
-            <element signature="class#PairedReadSequence#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#decode#0;class#PairedReadCodec#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#PairedReadComparator#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="method#EstimateLibraryComplexity#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Reader#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="class#Sorter#0;class#EstimateLibraryComplexity#0" expanded="false" />
-            <element signature="e#19659#19679#0" expanded="true" />
-            <element signature="e#19787#19815#0" expanded="true" />
-            <element signature="e#19901#19929#0" expanded="true" />
-            <element signature="e#22284#22304#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/htsjdk/dist/htsjdk-1.135.jar!/htsjdk/samtools/util/SortingCollection.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8020833" vertical-offset="888" max-vertical-offset="4590">
+          <caret line="117" column="17" selection-start-line="117" selection-start-column="17" selection-end-line="117" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>

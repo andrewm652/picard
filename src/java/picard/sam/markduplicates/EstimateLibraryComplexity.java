@@ -265,15 +265,15 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         final List<SAMReadGroupRecord> readGroups;
         private final ProgressLogger progress;
         private final BlockingQueue<PairedReadSequence> queue;
-        //private final CyclicBarrier barrier;
         private final CountDownLatch latch;
+        private long count = 0;
+        private long countPut = 0;
 
         public Reader(List<SAMReadGroupRecord> readGroups, ProgressLogger progress, BlockingQueue<PairedReadSequence> queue, CountDownLatch latch) {
             this.readGroups = readGroups;
             this.progress = progress;
             this.queue = queue;
             this.latch = latch;
-            //this.barrier = barrier;
         }
 
         @Override
@@ -287,6 +287,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                 readGroups.addAll(in.getFileHeader().getReadGroups());
 
                 for (final SAMRecord rec : in) {
+                    count++;
                     if (!rec.getReadPairedFlag()) continue;
                     if (!rec.getFirstOfPairFlag() && !rec.getSecondOfPairFlag()) {
                         continue;
@@ -325,6 +326,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                         //sorter.add(prs);
                         try {
                             queue.put(prs);
+                            countPut++;
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -337,17 +339,10 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             log.info("Reading finished");
             reading = false;
             log.info("reading = false");
-            log.info("Latch knock-knock");
-            latch.countDown();
-            log.info("Latch knock-knock done");
-            /*try {
-                barrier.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (BrokenBarrierException e) {
-                e.printStackTrace();
-            }*/
             log.info("Finished reading");
+            latch.countDown();
+            log.info("read count = " + count);
+            log.info("count put = " + countPut);
         }
     }
 
@@ -356,13 +351,12 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         private final SortingCollection<PairedReadSequence> sortingCollection;
         private final CountDownLatch latch;
         private int maxsizeBQ = 0;
-        //private final CyclicBarrier barrier;
+        private long countTook = 0;
 
         public Sorter(BlockingQueue<PairedReadSequence> queue, SortingCollection<PairedReadSequence> sortingCollection, CountDownLatch latch) {
             this.queue = queue;
             this.sortingCollection = sortingCollection;
             this.latch = latch;
-            //this.barrier = barrier;
         }
 
         @Override
@@ -373,6 +367,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                     if (maxsizeBQ < queue.size())
                         maxsizeBQ = queue.size();
                     sortingCollection.add(queue.take());
+                    countTook++;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -383,21 +378,15 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                     if (maxsizeBQ < queue.size())
                         maxsizeBQ = queue.size();
                     sortingCollection.add(queue.take());
+                    countTook++;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             log.info("Max size of BQ = " + maxsizeBQ);
-            log.info("Latch knock-knock");
+            log.info("Finished sorting");
             latch.countDown();
-            log.info("Latch knock-knock done");
-            /*try {
-                barrier.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (BrokenBarrierException e) {
-                e.printStackTrace();
-            }*/
+            log.info("count took = " + countTook);
         }
     }
 
@@ -411,8 +400,6 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
      */
     @Override
     protected int doWork() {
-        //for (final File f : INPUT) IOUtil.assertFileIsReadable(f);
-
         log.info("Will store " + MAX_RECORDS_IN_RAM + " read pairs");
         log.info("Will store " + 2 * MAX_RECORDS_IN_RAM / 3 + " for reader");
         log.info("Will store " + MAX_RECORDS_IN_RAM / 3 + " for sorter");
@@ -430,7 +417,6 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
         BlockingQueue<PairedReadSequence> queue = new LinkedBlockingQueue<PairedReadSequence>(2 * MAX_RECORDS_IN_RAM / 3);
 
-        //CyclicBarrier writer = new CyclicBarrier(2, new Writer(readGroups, recordsRead, sorter));
         CountDownLatch latch = new CountDownLatch(2);
 
         ExecutorService service = Executors.newCachedThreadPool();
@@ -453,10 +439,18 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         final Map<String, Histogram<Integer>> opticalHistosByLibrary = new HashMap<String, Histogram<Integer>>();
 
         int groupsProcessed = 0;
+        int duplC = 0;
+        long iterations = 0;
+        int seqall = 0;
+        int matchtrue = 0;
+        int matchfalse = 0;
+
         long lastLogTime = System.currentTimeMillis();
         final int meanGroupSize = Math.max(1, (recordsRead / 2) / (int) pow(4, MIN_IDENTICAL_BASES * 2));
 
+
         while (iterator.hasNext()) {
+            iterations++;
             // Get the next group and split it apart by library
             final List<PairedReadSequence> group = getNextGroup(iterator);
 
@@ -483,7 +477,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                         duplicationHistosByLibrary.put(library, duplicationHisto);
                         opticalHistosByLibrary.put(library, opticalHisto);
                     }
-
+                    seqall += seqs.size();
                     // Figure out if any reads within this group are duplicates of one another
                     for (int i = 0; i < seqs.size(); ++i) {
                         final PairedReadSequence lhs = seqs.get(i);
@@ -495,14 +489,18 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                             if (rhs == null) continue;
 
                             if (matches(lhs, rhs, MAX_DIFF_RATE)) {
+                                matchtrue++;
                                 dupes.add(rhs);
                                 seqs.set(j, null);
+                            } else {
+                                matchfalse++;
                             }
                         }
 
                         if (dupes.size() > 0) {
                             dupes.add(lhs);
                             final int duplicateCount = dupes.size();
+                            duplC += duplicateCount;
                             duplicationHisto.increment(duplicateCount);
 
                             final boolean[] flags = opticalDuplicateFinder.findOpticalDuplicates(dupes);
@@ -522,6 +520,14 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                 }
             }
         }
+
+        log.info("groups processed = " + groupsProcessed);
+        log.info("duplicate count = " + duplC);
+        log.info("iterations = " + iterations);
+        log.info("size of read groups = " + readGroups.size());
+        log.info("seqall = " + seqall);
+        log.info("match true = " + matchtrue);
+        log.info("match false = " + matchfalse);
 
         iterator.close();
         sorter.cleanup();
@@ -552,6 +558,8 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         }
 
         file.write(OUTPUT);
+
+
 
         return 0;
     }
