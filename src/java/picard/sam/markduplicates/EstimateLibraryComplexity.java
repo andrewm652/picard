@@ -52,9 +52,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
+import static java.lang.Math.max;
 import static java.lang.Math.pow;
 
 /**
@@ -122,8 +122,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             "group size would be approximately 10 reads.")
     public int MAX_GROUP_RATIO = 500;
 
-    @Option(doc = "Number of sorting threads.")
-    public int AMOUNT_OF_SORTING_THREADS = 4;
+    volatile boolean reading = true;
 
     private final Log log = Log.getInstance(EstimateLibraryComplexity.class);
 
@@ -258,16 +257,272 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         MAX_RECORDS_IN_RAM = (int) (Runtime.getRuntime().maxMemory() / PairedReadSequence.size_in_bytes) / 2;
     }
 
-    class SortingTask implements Runnable {
-        public SortingTask(SortingCollection<PairedReadSequence> sorter) {
 
+    //Added classes
+
+    class Reader implements Runnable {
+        final List<SAMReadGroupRecord> readGroups;
+        private final ProgressLogger progress;
+        private final BlockingQueue<PairedReadSequence> queue;
+        //private final CyclicBarrier barrier;
+        private final CountDownLatch latch;
+
+        public Reader(List<SAMReadGroupRecord> readGroups, ProgressLogger progress, BlockingQueue<PairedReadSequence> queue, CountDownLatch latch) {
+            this.readGroups = readGroups;
+            this.progress = progress;
+            this.queue = queue;
+            this.latch = latch;
+            //this.barrier = barrier;
         }
 
         @Override
         public void run() {
+            log.info("Assert files");
+            for (final File f : INPUT) IOUtil.assertFileIsReadable(f);
+            log.info("Reading files");
+            for (final File f : INPUT) {
+                final Map<String, PairedReadSequence> pendingByName = new HashMap<String, PairedReadSequence>();
+                final SamReader in = SamReaderFactory.makeDefault().referenceSequence(REFERENCE_SEQUENCE).open(f);
+                readGroups.addAll(in.getFileHeader().getReadGroups());
 
+                for (final SAMRecord rec : in) {
+                    if (!rec.getReadPairedFlag()) continue;
+                    if (!rec.getFirstOfPairFlag() && !rec.getSecondOfPairFlag()) {
+                        continue;
+                    }
+
+                    PairedReadSequence prs = pendingByName.remove(rec.getReadName());
+                    if (prs == null) {
+                        // Make a new paired read object and add RG and physical location information to it
+                        prs = new PairedReadSequence();
+                        if (opticalDuplicateFinder.addLocationInformation(rec.getReadName(), prs)) {
+                            final SAMReadGroupRecord rg = rec.getReadGroup();
+                            if (rg != null) prs.setReadGroup((short) readGroups.indexOf(rg));
+                        }
+
+                        pendingByName.put(rec.getReadName(), prs);
+                    }
+
+                    // Read passes quality check if both ends meet the mean quality criteria
+                    final boolean passesQualityCheck = passesQualityCheck(rec.getReadBases(),
+                            rec.getBaseQualities(),
+                            MIN_IDENTICAL_BASES,
+                            MIN_MEAN_QUALITY);
+                    prs.qualityOk = prs.qualityOk && passesQualityCheck;
+
+                    // Get the bases and restore them to their original orientation if necessary
+                    final byte[] bases = rec.getReadBases();
+                    if (rec.getReadNegativeStrandFlag()) SequenceUtil.reverseComplement(bases);
+
+                    if (rec.getFirstOfPairFlag()) {
+                        prs.read1 = bases;
+                    } else {
+                        prs.read2 = bases;
+                    }
+
+                    if (prs.read1 != null && prs.read2 != null && prs.qualityOk) {
+                        //sorter.add(prs);
+                        try {
+                            queue.put(prs);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    progress.record(rec);
+                }
+                CloserUtil.close(in);
+                log.info("EOF");
+            }
+            log.info("Reading finished");
+            reading = false;
+            log.info("reading = false");
+            log.info("Latch knock-knock");
+            latch.countDown();
+            log.info("Latch knock-knock done");
+            /*try {
+                barrier.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (BrokenBarrierException e) {
+                e.printStackTrace();
+            }*/
+            log.info("Finished reading");
         }
     }
+
+    class Sorter implements Runnable {
+        private final BlockingQueue<PairedReadSequence> queue;
+        private final SortingCollection<PairedReadSequence> sortingCollection;
+        private final CountDownLatch latch;
+        private int maxsize = 0;
+        //private final CyclicBarrier barrier;
+
+        public Sorter(BlockingQueue<PairedReadSequence> queue, SortingCollection<PairedReadSequence> sortingCollection, CountDownLatch latch) {
+            this.queue = queue;
+            this.sortingCollection = sortingCollection;
+            this.latch = latch;
+            //this.barrier = barrier;
+        }
+
+        @Override
+        public void run() {
+            log.info("Sorting stage 1");
+            while (reading) {
+                try {
+                    if (maxsize < queue.size())
+                        maxsize = queue.size();
+                    sortingCollection.add(queue.take());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            log.info("Sorting stage 2");
+            while (!queue.isEmpty()) {
+                try {
+                    if (maxsize < queue.size())
+                        maxsize = queue.size();
+                    sortingCollection.add(queue.take());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            log.info("Max size of queue = " + maxsize);
+            log.info("Latch knock-knock");
+            latch.countDown();
+            log.info("Latch knock-knock done");
+            /*try {
+                barrier.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (BrokenBarrierException e) {
+                e.printStackTrace();
+            }*/
+        }
+    }
+
+    class Writer implements Runnable {
+        private final List<SAMReadGroupRecord> readGroups;
+        private final int recordsRead;
+        private final SortingCollection<PairedReadSequence> sortingCollection;
+
+        public Writer(List<SAMReadGroupRecord> readGroups, int recordsRead, SortingCollection<PairedReadSequence> sortingCollection) {
+            this.readGroups = readGroups;
+            this.recordsRead = recordsRead;
+            this.sortingCollection = sortingCollection;
+        }
+
+        @Override
+        public void run() {
+            log.info("Writer starting");
+            final PeekableIterator<PairedReadSequence> iterator = new PeekableIterator<PairedReadSequence>(sortingCollection.iterator());
+
+            final Map<String, Histogram<Integer>> duplicationHistosByLibrary = new HashMap<String, Histogram<Integer>>();
+            final Map<String, Histogram<Integer>> opticalHistosByLibrary = new HashMap<String, Histogram<Integer>>();
+
+            int groupsProcessed = 0;
+            long lastLogTime = System.currentTimeMillis();
+            final int meanGroupSize = Math.max(1, (recordsRead / 2) / (int) pow(4, MIN_IDENTICAL_BASES * 2));
+
+            while (iterator.hasNext()) {
+                // Get the next group and split it apart by library
+                final List<PairedReadSequence> group = getNextGroup(iterator);
+
+                if (group.size() > meanGroupSize * MAX_GROUP_RATIO) {
+                    final PairedReadSequence prs = group.get(0);
+                    log.warn("Omitting group with over " + MAX_GROUP_RATIO + " times the expected mean number of read pairs. " +
+                            "Mean=" + meanGroupSize + ", Actual=" + group.size() + ". Prefixes: " +
+                            StringUtil.bytesToString(prs.read1, 0, MIN_IDENTICAL_BASES) +
+                            " / " +
+                            StringUtil.bytesToString(prs.read1, 0, MIN_IDENTICAL_BASES));
+                } else {
+                    final Map<String, List<PairedReadSequence>> sequencesByLibrary = splitByLibrary(group, readGroups);
+
+                    // Now process the reads by library
+                    for (final Map.Entry<String, List<PairedReadSequence>> entry : sequencesByLibrary.entrySet()) {
+                        final String library = entry.getKey();
+                        final List<PairedReadSequence> seqs = entry.getValue();
+
+                        Histogram<Integer> duplicationHisto = duplicationHistosByLibrary.get(library);
+                        Histogram<Integer> opticalHisto = opticalHistosByLibrary.get(library);
+                        if (duplicationHisto == null) {
+                            duplicationHisto = new Histogram<Integer>("duplication_group_count", library);
+                            opticalHisto = new Histogram<Integer>("duplication_group_count", "optical_duplicates");
+                            duplicationHistosByLibrary.put(library, duplicationHisto);
+                            opticalHistosByLibrary.put(library, opticalHisto);
+                        }
+
+                        // Figure out if any reads within this group are duplicates of one another
+                        for (int i = 0; i < seqs.size(); ++i) {
+                            final PairedReadSequence lhs = seqs.get(i);
+                            if (lhs == null) continue;
+                            final List<PairedReadSequence> dupes = new ArrayList<PairedReadSequence>();
+
+                            for (int j = i + 1; j < seqs.size(); ++j) {
+                                final PairedReadSequence rhs = seqs.get(j);
+                                if (rhs == null) continue;
+
+                                if (matches(lhs, rhs, MAX_DIFF_RATE)) {
+                                    dupes.add(rhs);
+                                    seqs.set(j, null);
+                                }
+                            }
+
+                            if (dupes.size() > 0) {
+                                dupes.add(lhs);
+                                final int duplicateCount = dupes.size();
+                                duplicationHisto.increment(duplicateCount);
+
+                                final boolean[] flags = opticalDuplicateFinder.findOpticalDuplicates(dupes);
+                                for (final boolean b : flags) {
+                                    if (b) opticalHisto.increment(duplicateCount);
+                                }
+                            } else {
+                                duplicationHisto.increment(1);
+                            }
+                        }
+                    }
+
+                    ++groupsProcessed;
+                    if (lastLogTime < System.currentTimeMillis() - 60000) {
+                        log.info("Processed " + groupsProcessed + " groups.");
+                        lastLogTime = System.currentTimeMillis();
+                    }
+                }
+            }
+
+            iterator.close();
+            sortingCollection.cleanup();
+
+            final MetricsFile<DuplicationMetrics, Integer> file = getMetricsFile();
+            for (final String library : duplicationHistosByLibrary.keySet()) {
+                final Histogram<Integer> duplicationHisto = duplicationHistosByLibrary.get(library);
+                final Histogram<Integer> opticalHisto = opticalHistosByLibrary.get(library);
+                final DuplicationMetrics metrics = new DuplicationMetrics();
+                metrics.LIBRARY = library;
+
+                // Filter out any bins that have only a single entry in them and calcu
+                for (final Integer bin : duplicationHisto.keySet()) {
+                    final double duplicateGroups = duplicationHisto.get(bin).getValue();
+                    final double opticalDuplicates = opticalHisto.get(bin) == null ? 0 : opticalHisto.get(bin).getValue();
+
+                    if (duplicateGroups > 1) {
+                        metrics.READ_PAIRS_EXAMINED += (bin * duplicateGroups);
+                        metrics.READ_PAIR_DUPLICATES += ((bin - 1) * duplicateGroups);
+                        metrics.READ_PAIR_OPTICAL_DUPLICATES += opticalDuplicates;
+                    }
+                }
+
+                metrics.calculateDerivedMetrics();
+                file.addMetric(metrics);
+                file.addHistogram(duplicationHisto);
+
+            }
+            file.write(OUTPUT);
+        }
+    }
+
+    //end
+
 
     /**
      * Method that does most of the work.  Reads through the input BAM file and extracts the
@@ -276,43 +531,43 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
      */
     @Override
     protected int doWork() {
-        for (final File f : INPUT) IOUtil.assertFileIsReadable(f);
+        //for (final File f : INPUT) IOUtil.assertFileIsReadable(f);
 
         log.info("Will store " + MAX_RECORDS_IN_RAM + " read pairs in memory before sorting.");
+        log.info("Will store " + MAX_RECORDS_IN_RAM / 3 + " for reader");
+        log.info("Will store " + 2 * MAX_RECORDS_IN_RAM / 3 + " for sorter");
 
         final List<SAMReadGroupRecord> readGroups = new ArrayList<SAMReadGroupRecord>();
         final int recordsRead = 0;
         final SortingCollection<PairedReadSequence> sorter = SortingCollection.newInstance(PairedReadSequence.class,
                 new PairedReadCodec(),
                 new PairedReadComparator(),
-                MAX_RECORDS_IN_RAM,
+                2 * MAX_RECORDS_IN_RAM / 3,
                 TMP_DIR);
 
         // Loop through the input files and pick out the read sequences etc.
         final ProgressLogger progress = new ProgressLogger(log, (int) 1e6, "Read");
 
+        BlockingQueue<PairedReadSequence> queue = new LinkedBlockingQueue<PairedReadSequence>(MAX_RECORDS_IN_RAM / 3);
 
+        //CyclicBarrier writer = new CyclicBarrier(2, new Writer(readGroups, recordsRead, sorter));
+        CountDownLatch latch = new CountDownLatch(2);
 
-
-        //NEW
-
-        List<SortingCollection<PairedReadSequence>> sortingCollectionList = new LinkedList<SortingCollection<PairedReadSequence>>();
-        for (SortingCollection<PairedReadSequence> threadsSorter : sortingCollectionList) {
-            threadsSorter = SortingCollection.newInstance(PairedReadSequence.class,
-                    new PairedReadCodec(),
-                    new PairedReadComparator(),
-                    MAX_RECORDS_IN_RAM,
-                    TMP_DIR);
-
+        ExecutorService service = Executors.newCachedThreadPool();
+        log.info("Reader starting");
+        service.submit(new Reader(readGroups, progress, queue, latch));
+        log.info("Sorter starting");
+        service.submit(new Sorter(queue, sorter, latch));
+        log.info("Main thread waiting");
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        ExecutorService executorService = Executors.newFixedThreadPool(AMOUNT_OF_SORTING_THREADS);
-
-        //END
 
 
-
-
-        for (final File f : INPUT) {
+        //reader start
+        /*for (final File f : INPUT) {
             final Map<String, PairedReadSequence> pendingByName = new HashMap<String, PairedReadSequence>();
             final SamReader in = SamReaderFactory.makeDefault().referenceSequence(REFERENCE_SEQUENCE).open(f);
             readGroups.addAll(in.getFileHeader().getReadGroups());
@@ -353,7 +608,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                 }
 
                 if (prs.read1 != null && prs.read2 != null && prs.qualityOk) {
-                    sorter.add(prs);
+                    sorter.add(prs); //sorter work
                 }
 
                 progress.record(rec);
@@ -362,11 +617,13 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         }
 
         log.info("Finished reading - moving on to scanning for duplicates.");
+        //reader stop*/
 
 
 
 
 
+        log.info("Main thread awake");
         // Now go through the sorted reads and attempt to find duplicates
         final PeekableIterator<PairedReadSequence> iterator = new PeekableIterator<PairedReadSequence>(sorter.iterator());
 
