@@ -269,6 +269,9 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
     protected int doWork() {
         for (final File f : INPUT) IOUtil.assertFileIsReadable(f);
 
+        long countRead = 0;
+        long countPut = 0;
+
         log.info("Will store " + MAX_RECORDS_IN_RAM + " read pairs in memory before sorting.");
 
         final List<SAMReadGroupRecord> readGroups = new ArrayList<SAMReadGroupRecord>();
@@ -287,6 +290,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             readGroups.addAll(in.getFileHeader().getReadGroups());
 
             for (final SAMRecord rec : in) {
+                countRead++;
                 if (!rec.getReadPairedFlag()) continue;
                 if (!rec.getFirstOfPairFlag() && !rec.getSecondOfPairFlag()) {
                     continue;
@@ -323,13 +327,15 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
                 if (prs.read1 != null && prs.read2 != null && prs.qualityOk) {
                     sorter.add(prs);
+                    countPut++;
                 }
 
                 progress.record(rec);
             }
             CloserUtil.close(in);
         }
-
+        log.info("read count = " + countRead);
+        log.info("put count = " + countPut);
         log.info("Finished reading - moving on to scanning for duplicates.");
 
         // Now go through the sorted reads and attempt to find duplicates
@@ -408,6 +414,8 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                 }
             }
         }
+
+        log.info("groups processed = " + groupsProcessed);
 
         iterator.close();
         sorter.cleanup();
