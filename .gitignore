@@ -1,1 +1,4 @@
-htsjdk
+classes/**
+out/**
+.idea/**
+htsjdk/**
