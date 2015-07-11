@@ -32,14 +32,9 @@ public class Test {
                 }
             }
         };
-
-
-        //pool.setRejectedExecutionHandler(block);
         ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 4, 5, TimeUnit.SECONDS, queue, block);
         Thread.sleep(5000);
 
-        //queue.put(new Task());
-        //pool.submit(queue.take());
         poolExecutor.submit(new Task());
         System.out.println("added 1 task");
         poolExecutor.submit(new Task());

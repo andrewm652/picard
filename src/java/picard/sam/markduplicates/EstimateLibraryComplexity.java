@@ -33,7 +33,6 @@ import htsjdk.samtools.util.Log;
 import htsjdk.samtools.util.PeekableIterator;
 import htsjdk.samtools.util.ProgressLogger;
 import htsjdk.samtools.util.SequenceUtil;
-import htsjdk.samtools.util.SortingCollection;
 import htsjdk.samtools.util.StringUtil;
 import picard.PicardException;
 import picard.cmdline.CommandLineProgramProperties;
@@ -166,7 +165,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
     /**
      * Codec class for writing and read PairedReadSequence objects.
      */
-    static class PairedReadCodec implements SortingCollection.Codec<PairedReadSequence> {
+    static class PairedReadCodec implements MultiThreadSortingCollection.Codec<PairedReadSequence> {
         private DataOutputStream out;
         private DataInputStream in;
 
@@ -225,7 +224,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         }
 
         @Override
-        public SortingCollection.Codec<PairedReadSequence> clone() { return new PairedReadCodec(); }
+        public MultiThreadSortingCollection.Codec<PairedReadSequence> clone() { return new PairedReadCodec(); }
     }
 
     /**
@@ -356,12 +355,12 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
     class Sorter implements Runnable {
         private final BlockingQueue<PairedReadSequence> queue;
-        private final SortingCollection<PairedReadSequence> sortingCollection;
+        private final MultiThreadSortingCollection<PairedReadSequence> sortingCollection;
         private final CountDownLatch latch;
         private int maxsizeBQ = 0;
         private long countTook = 0;
 
-        public Sorter(BlockingQueue<PairedReadSequence> queue, SortingCollection<PairedReadSequence> sortingCollection, CountDownLatch latch) {
+        public Sorter(BlockingQueue<PairedReadSequence> queue, MultiThreadSortingCollection<PairedReadSequence> sortingCollection, CountDownLatch latch) {
             this.queue = queue;
             this.sortingCollection = sortingCollection;
             this.latch = latch;
@@ -408,7 +407,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
         final List<SAMReadGroupRecord> readGroups = new ArrayList<SAMReadGroupRecord>();
         final int recordsRead = 0;
-        final SortingCollection<PairedReadSequence> sorter = SortingCollection.newInstance(PairedReadSequence.class,
+        final MultiThreadSortingCollection<PairedReadSequence> sorter = MultiThreadSortingCollection.newInstance(PairedReadSequence.class,
                 new PairedReadCodec(),
                 new PairedReadComparator(),
                 MAX_RECORDS_IN_RAM / 3,
