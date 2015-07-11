@@ -54,6 +54,7 @@ import java.io.OutputStream;
 import java.lang.instrument.Instrumentation;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Math.max;
 import static java.lang.Math.pow;
@@ -123,7 +124,8 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             "group size would be approximately 10 reads.")
     public int MAX_GROUP_RATIO = 500;
 
-    volatile boolean reading = true;
+    private volatile boolean reading = true;
+    private final PairedReadSequence POISON_PILL = new PairedReadSequence();
 
     private final Log log = Log.getInstance(EstimateLibraryComplexity.class);
 
@@ -262,7 +264,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
     //Added classes
 
     class Reader implements Runnable {
-        final List<SAMReadGroupRecord> readGroups;
+        private final List<SAMReadGroupRecord> readGroups;
         private final ProgressLogger progress;
         private final BlockingQueue<PairedReadSequence> queue;
         private final CountDownLatch latch;
@@ -337,7 +339,13 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                 log.info("EOF");
             }
             log.info("Reading finished");
-            reading = false;
+            reading= false;
+            try {
+                queue.put(POISON_PILL);
+                log.info("POISON PILL WAS PUT");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             log.info("reading = false");
             log.info("Finished reading");
             latch.countDown();
@@ -361,23 +369,17 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
         @Override
         public void run() {
-            log.info("Sorting stage 1");
-            while (reading) {
+            log.info("Sorting stage started");
+            while (reading || !queue.isEmpty()) {
                 try {
                     if (maxsizeBQ < queue.size())
                         maxsizeBQ = queue.size();
-                    sortingCollection.add(queue.take());
-                    countTook++;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            log.info("Sorting stage 2");
-            while (!queue.isEmpty()) {
-                try {
-                    if (maxsizeBQ < queue.size())
-                        maxsizeBQ = queue.size();
-                    sortingCollection.add(queue.take());
+                    PairedReadSequence taken = queue.take();
+                    if (taken == POISON_PILL) {
+                        log.info("TOOK POISON PILL");
+                        break;
+                    }
+                    sortingCollection.add(taken);
                     countTook++;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
