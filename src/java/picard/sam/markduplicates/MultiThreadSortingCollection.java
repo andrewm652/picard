@@ -35,14 +35,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.TreeSet;
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Collection to which many records can be added.  After all records are added, the collection can be
@@ -132,6 +127,26 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
 
     private TempStreamFactory tempStreamFactory = new TempStreamFactory();
 
+    private BlockingQueue<T> queueOfT;
+
+    private BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<Runnable>(1);
+
+    private RejectedExecutionHandler block = new RejectedExecutionHandler() {
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            try {
+                executor.getQueue().put(r);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 4, 5, TimeUnit.SECONDS, tasks, block);
+    private Collection<Future> futureCollection = new LinkedList<Future>();
+
+    private final Class<T> componentType;
+
     /**
      * Prepare to accumulate records to be sorted
      * @param componentType Class of the record to be sorted.  Necessary because of Java generic lameness.
@@ -154,7 +169,9 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
         this.codec = codec;
         this.comparator = comparator;
         this.maxRecordsInRam = maxRecordsInRam;
+        this.componentType = componentType;
         this.ramRecords = (T[])Array.newInstance(componentType, maxRecordsInRam);
+        this.queueOfT = new LinkedBlockingQueue<T>(maxRecordsInRam);
     }
 
     public void add(final T rec) {
@@ -167,7 +184,13 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
         if (numRecordsInRam == maxRecordsInRam) {
             spillToDisk();
         }
-        ramRecords[numRecordsInRam++] = rec;
+        try {
+            queueOfT.put(rec);
+            numRecordsInRam++;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //ramRecords[numRecordsInRam++] = rec;
     }
 
     /**
@@ -192,9 +215,19 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
         if (this.numRecordsInRam > 0) {
             spillToDisk();
         }
-
         // Facilitate GC
-        this.ramRecords = null;
+        this.queueOfT.clear();
+
+        for (Future future : futureCollection) {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     /**
@@ -213,39 +246,77 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
         this.destructiveIteration = destructiveIteration;
     }
 
+
     /**
      * Sort the records in memory, write them to a file, and clear the buffer of records in memory.
      */
-    private void spillToDisk() {
-        try {
-            Arrays.sort(this.ramRecords, 0, this.numRecordsInRam, this.comparator);
-            final File f = newTempFile();
+    class Sorter implements Runnable {
+        private T[] array;
+        private int numRecordsInArray;
+        private final Comparator<T> compare;
+        private File file;
+        private final MultiThreadSortingCollection.Codec<T> codec;
+        private TempStreamFactory tempStreamFactory = new TempStreamFactory();
+
+        public Sorter(T[] array, int numRecordsInArray, Comparator<T> compare, File file, Codec<T> codec) {
+            this.array = array;
+            this.numRecordsInArray = numRecordsInArray;
+            this.compare = compare;
+            this.file = file;
+            this.codec = codec;
+        }
+
+        @Override
+        public void run() {
+            Arrays.sort(this.array, 0, this.numRecordsInArray, this.compare);
             OutputStream os = null;
             try {
-                os = tempStreamFactory.wrapTempOutputStream(new FileOutputStream(f), Defaults.BUFFER_SIZE);
+                os = this.tempStreamFactory.wrapTempOutputStream(new FileOutputStream(file), Defaults.BUFFER_SIZE);
                 this.codec.setOutputStream(os);
-                for (int i = 0; i < this.numRecordsInRam; ++i) {
-                    this.codec.encode(ramRecords[i]);
+                for (int i = 0; i < this.numRecordsInArray; ++i) {
+                    this.codec.encode(array[i]);
                     // Facilitate GC
-                    this.ramRecords[i] = null;
+                    this.array[i] = null;
                 }
 
                 os.flush();
             } catch (RuntimeIOException ex) {
-                throw new RuntimeIOException("Problem writing temporary file " + f.getAbsolutePath() +
+                throw new RuntimeIOException("Problem writing temporary file " + file.getAbsolutePath() +
                         ".  Try setting TMP_DIR to a file system with lots of space.", ex);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             } finally {
                 if (os != null) {
-                    os.close();
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-
-            this.numRecordsInRam = 0;
-            this.files.add(f);
-
         }
-        catch (IOException e) {
-            throw new RuntimeIOException(e);
+    }
+
+    /**
+     * Starts new thread, that sort array and write it in the file.
+     */
+    private void spillToDisk()  {
+        try {
+            final File file = newTempFile();
+            this.files.add(file);
+            futureCollection.add(poolExecutor.submit(
+                    new Sorter(this.queueOfT.toArray((T[]) Array.newInstance(componentType, 0)),
+                            this.numRecordsInRam,
+                            this.comparator, file,
+                            this.codec.clone()
+                    )
+            ));
+            this.numRecordsInRam = 0;
+            queueOfT.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -350,6 +421,7 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
         private int iterationIndex = 0;
 
         InMemoryIterator() {
+            MultiThreadSortingCollection.this.ramRecords = MultiThreadSortingCollection.this.queueOfT.toArray((T[]) Array.newInstance(componentType, 0));
             Arrays.sort(MultiThreadSortingCollection.this.ramRecords,
                     0,
                     MultiThreadSortingCollection.this.numRecordsInRam,

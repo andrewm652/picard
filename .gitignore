@@ -1,3 +1,4 @@
 classes/**
-htsjdk
+htsjdk/**
 out/**
+.idea/**

@@ -50,10 +50,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.instrument.Instrumentation;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Math.max;
 import static java.lang.Math.pow;
@@ -123,7 +121,6 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             "group size would be approximately 10 reads.")
     public int MAX_GROUP_RATIO = 500;
 
-    private volatile boolean reading = true;
     private final PairedReadSequence POISON_PILL = new PairedReadSequence();
 
     private final Log log = Log.getInstance(EstimateLibraryComplexity.class);
@@ -279,6 +276,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
         @Override
         public void run() {
+            Thread.currentThread().setName("reader");
             log.info("Assert files");
             for (final File f : INPUT) IOUtil.assertFileIsReadable(f);
             log.info("Reading files");
@@ -338,7 +336,6 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                 log.info("EOF");
             }
             log.info("Reading finished");
-            reading= false;
             try {
                 queue.put(POISON_PILL);
                 log.info("POISON PILL WAS PUT");
@@ -353,14 +350,14 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         }
     }
 
-    class Sorter implements Runnable {
+    class Dispatch implements Runnable {
         private final BlockingQueue<PairedReadSequence> queue;
         private final MultiThreadSortingCollection<PairedReadSequence> sortingCollection;
         private final CountDownLatch latch;
         private int maxsizeBQ = 0;
         private long countTook = 0;
 
-        public Sorter(BlockingQueue<PairedReadSequence> queue, MultiThreadSortingCollection<PairedReadSequence> sortingCollection, CountDownLatch latch) {
+        public Dispatch(BlockingQueue<PairedReadSequence> queue, MultiThreadSortingCollection<PairedReadSequence> sortingCollection, CountDownLatch latch) {
             this.queue = queue;
             this.sortingCollection = sortingCollection;
             this.latch = latch;
@@ -368,8 +365,9 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
 
         @Override
         public void run() {
+            Thread.currentThread().setName("dispatch");
             log.info("Sorting stage started");
-            while (reading || !queue.isEmpty()) {
+            while (true) {
                 try {
                     if (maxsizeBQ < queue.size())
                         maxsizeBQ = queue.size();
@@ -384,6 +382,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
                     e.printStackTrace();
                 }
             }
+            sortingCollection.doneAdding();
             log.info("Max size of BQ = " + maxsizeBQ);
             log.info("Finished sorting");
             latch.countDown();
@@ -401,30 +400,37 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
      */
     @Override
     protected int doWork() {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         log.info("Will store " + MAX_RECORDS_IN_RAM + " read pairs");
-        log.info("Will store " + 2 * MAX_RECORDS_IN_RAM / 3 + " for reader");
-        log.info("Will store " + MAX_RECORDS_IN_RAM / 3 + " for sorter");
+        //log.info("Will store " + 2 * MAX_RECORDS_IN_RAM / 3 + " for reader");
+        //log.info("Will store " + MAX_RECORDS_IN_RAM / 3 + " for sorter");
 
         final List<SAMReadGroupRecord> readGroups = new ArrayList<SAMReadGroupRecord>();
         final int recordsRead = 0;
         final MultiThreadSortingCollection<PairedReadSequence> sorter = MultiThreadSortingCollection.newInstance(PairedReadSequence.class,
                 new PairedReadCodec(),
                 new PairedReadComparator(),
-                MAX_RECORDS_IN_RAM / 3,
+                MAX_RECORDS_IN_RAM / 8,
                 TMP_DIR);
 
         // Loop through the input files and pick out the read sequences etc.
         final ProgressLogger progress = new ProgressLogger(log, (int) 1e6, "Read");
 
-        BlockingQueue<PairedReadSequence> queue = new LinkedBlockingQueue<PairedReadSequence>(2 * MAX_RECORDS_IN_RAM / 3);
+        BlockingQueue<PairedReadSequence> queue = new LinkedBlockingQueue<PairedReadSequence>(MAX_RECORDS_IN_RAM / 8);
 
         CountDownLatch latch = new CountDownLatch(2);
 
         ExecutorService service = Executors.newCachedThreadPool();
         log.info("Reader starting");
         service.submit(new Reader(readGroups, progress, queue, latch));
-        log.info("Sorter starting");
-        service.submit(new Sorter(queue, sorter, latch));
+        log.info("Dispatch starting");
+        service.submit(new Dispatch(queue, sorter, latch));
         log.info("Main thread waiting");
         try {
             latch.await();
