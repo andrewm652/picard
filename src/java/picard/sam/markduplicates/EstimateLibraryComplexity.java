@@ -400,13 +400,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
      */
     @Override
     protected int doWork() {
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
+        long start = System.currentTimeMillis();
         log.info("Will store " + MAX_RECORDS_IN_RAM + " read pairs");
         //log.info("Will store " + 2 * MAX_RECORDS_IN_RAM / 3 + " for reader");
         //log.info("Will store " + MAX_RECORDS_IN_RAM / 3 + " for sorter");
@@ -437,8 +431,10 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        long finish = System.currentTimeMillis();
+        log.info("without treatment, demonstration run, ELAPSED TIME = " + (finish - start));
 
-        log.info("Main thread awake");
+        /*log.info("Main thread awake");
         // Now go through the sorted reads and attempt to find duplicates
         final PeekableIterator<PairedReadSequence> iterator = new PeekableIterator<PairedReadSequence>(sorter.iterator());
 
@@ -561,12 +557,9 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             metrics.calculateDerivedMetrics();
             file.addMetric(metrics);
             file.addHistogram(duplicationHisto);
-
         }
 
-        file.write(OUTPUT);
-
-
+        file.write(OUTPUT);*/
 
         return 0;
     }

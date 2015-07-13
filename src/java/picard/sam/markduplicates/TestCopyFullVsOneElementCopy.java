@@ -4,39 +4,49 @@ import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class Putter implements Runnable {
-    Random random = new Random();
-    BlockingQueue<Integer> queueDst;
+public class TestCopyFullVsOneElementCopy {
 
-    public Putter(BlockingQueue<Integer> queueDst) {
-        this.queueDst = queueDst;
-    }
+    public static final int MAX_SIZE = 1000000;
+    public static final int RANGE = Integer.MAX_VALUE;
 
-    @Override
-    public void run() {
-        for (int i = 0; i < 1000000; i++) {
-            try {
-                queueDst.put(random.nextInt(1000));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    static class Putter implements Runnable {
+        Random random = new Random();
+        BlockingQueue<Integer> queueDst;
+
+        public Putter(BlockingQueue<Integer> queueDst) {
+            this.queueDst = queueDst;
+        }
+
+        @Override
+        public void run() {
+            for (int i = 0; i < MAX_SIZE; i++) {
+                try {
+                    queueDst.put(random.nextInt(RANGE));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
-}
-
-public class TestCopyFullVsOneElementCopy {
 
     public static void main(String[] args) {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         BlockingQueue<Integer> shortQ = new LinkedBlockingQueue<Integer>(1);
-        BlockingQueue<Integer> longQ = new LinkedBlockingQueue<Integer>(1000000);
-        Integer[] arrayshort = new Integer[1000000];
-        Integer[] arraylong = new Integer[1000000];
+        BlockingQueue<Integer> longQ = new LinkedBlockingQueue<Integer>(MAX_SIZE);
+        Integer[] arrayshort = new Integer[MAX_SIZE];
+        Integer[] arraylong = new Integer[MAX_SIZE];
 
         Thread thread = new Thread(new Putter(shortQ));
         thread.start();
 
         long start = System.currentTimeMillis();
-        for (int i = 999999; i >= 0; i--) {
+        for (int i = MAX_SIZE - 1; i >= 0; i--) {
             try {
                 arrayshort[i] = shortQ.take();
             } catch (InterruptedException e) {
@@ -50,15 +60,15 @@ public class TestCopyFullVsOneElementCopy {
 
 
         Random random = new Random();
-        for (int i = 0; i < 1000000; i++) {
+        long start2 = System.currentTimeMillis();
+        for (int i = 0; i < MAX_SIZE; i++) {
             try {
-                longQ.put(random.nextInt(1000));
+                longQ.put(random.nextInt(RANGE));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-        long start2 = System.currentTimeMillis();
         arraylong = longQ.toArray(new Integer[0]);
         longQ.clear();
         long finish2 = System.currentTimeMillis();
