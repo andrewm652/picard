@@ -400,23 +400,28 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
      */
     @Override
     protected int doWork() {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         long start = System.currentTimeMillis();
         log.info("Will store " + MAX_RECORDS_IN_RAM + " read pairs");
-        //log.info("Will store " + 2 * MAX_RECORDS_IN_RAM / 3 + " for reader");
-        //log.info("Will store " + MAX_RECORDS_IN_RAM / 3 + " for sorter");
+        //log.info("Will store " + MAX_RECORDS + " for reader");
 
         final List<SAMReadGroupRecord> readGroups = new ArrayList<SAMReadGroupRecord>();
         final int recordsRead = 0;
         final MultiThreadSortingCollection<PairedReadSequence> sorter = MultiThreadSortingCollection.newInstance(PairedReadSequence.class,
                 new PairedReadCodec(),
                 new PairedReadComparator(),
-                MAX_RECORDS_IN_RAM / 8,
+                MAX_RECORDS_IN_RAM / 3,
                 TMP_DIR);
 
         // Loop through the input files and pick out the read sequences etc.
         final ProgressLogger progress = new ProgressLogger(log, (int) 1e6, "Read");
 
-        BlockingQueue<PairedReadSequence> queue = new LinkedBlockingQueue<PairedReadSequence>(MAX_RECORDS_IN_RAM / 8);
+        BlockingQueue<PairedReadSequence> queue = new LinkedBlockingQueue<PairedReadSequence>(MAX_RECORDS_IN_RAM / 6);
 
         CountDownLatch latch = new CountDownLatch(2);
 
@@ -432,9 +437,9 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             e.printStackTrace();
         }
         long finish = System.currentTimeMillis();
-        log.info("without treatment, demonstration run, ELAPSED TIME = " + (finish - start));
+        log.info("Elapsed time for read and sort = " + (finish - start));
 
-        /*log.info("Main thread awake");
+        log.info("Main thread awake");
         // Now go through the sorted reads and attempt to find duplicates
         final PeekableIterator<PairedReadSequence> iterator = new PeekableIterator<PairedReadSequence>(sorter.iterator());
 
@@ -559,7 +564,7 @@ public class EstimateLibraryComplexity extends AbstractOpticalDuplicateFinderCom
             file.addHistogram(duplicationHisto);
         }
 
-        file.write(OUTPUT);*/
+        file.write(OUTPUT);
 
         return 0;
     }

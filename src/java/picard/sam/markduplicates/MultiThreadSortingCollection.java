@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -107,7 +108,7 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
      * For sorting, both when spilling records to file, and merge sorting.
      */
     private final Comparator<T> comparator;
-    private final int maxRecordsInRam;
+    private int maxRecordsInRam;
     private int numRecordsInRam = 0;
     private T[] ramRecords;
     private boolean iterationStarted = false;
@@ -129,21 +130,13 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
 
     private BlockingQueue<T> queueOfT;
 
-    private BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<Runnable>(1);
-
-    private RejectedExecutionHandler block = new RejectedExecutionHandler() {
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            try {
-                executor.getQueue().put(r);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    private ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(1, 4, 5, TimeUnit.SECONDS, tasks, block);
+    private ExecutorService poolExecutor = Executors.newCachedThreadPool();
+    private Semaphore sem = new Semaphore(4);
     private Collection<Future> futureCollection = new LinkedList<Future>();
+    /*private long startSort = 0;
+    private long finishSort = Long.MAX_VALUE;
+    private long startRead = 0;
+    private long finishRead = 0;*/
 
     private final Class<T> componentType;
 
@@ -182,6 +175,7 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
             throw new IllegalStateException("Cannot add after calling iterator()");
         }
         if (numRecordsInRam == maxRecordsInRam) {
+            //finishRead = System.nanoTime();
             spillToDisk();
         }
         try {
@@ -190,7 +184,6 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //ramRecords[numRecordsInRam++] = rec;
     }
 
     /**
@@ -268,6 +261,7 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
 
         @Override
         public void run() {
+            //startSort = System.nanoTime();
             Arrays.sort(this.array, 0, this.numRecordsInArray, this.compare);
             OutputStream os = null;
             try {
@@ -288,6 +282,7 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
+                sem.release();
                 if (os != null) {
                     try {
                         os.close();
@@ -295,6 +290,7 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
                         e.printStackTrace();
                     }
                 }
+                //finishSort = System.nanoTime();
             }
         }
     }
@@ -306,6 +302,7 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
         try {
             final File file = newTempFile();
             this.files.add(file);
+            sem.acquire();
             futureCollection.add(poolExecutor.submit(
                     new Sorter(this.queueOfT.toArray((T[]) Array.newInstance(componentType, 0)),
                             this.numRecordsInRam,
@@ -315,7 +312,16 @@ public class MultiThreadSortingCollection<T> implements Iterable<T> {
             ));
             this.numRecordsInRam = 0;
             queueOfT.clear();
+            /*if (((finishSort - startSort) < (finishRead - startRead)) && (sem.availablePermits() > 1)) {
+                this.maxRecordsInRam = this.maxRecordsInRam * 2;
+                //this.ramRecords = (T[])Array.newInstance(componentType, maxRecordsInRam);
+                this.queueOfT = new LinkedBlockingQueue<T>(this.maxRecordsInRam);
+                sem.acquire(sem.availablePermits() / 2);
+            }
+            startRead = System.nanoTime();*/
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
