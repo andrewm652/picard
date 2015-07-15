@@ -7,13 +7,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="picard_old_no_processing" level="project" />
-    <orderEntry type="library" name="htsjdk_lib_dir" level="project" />
+    <orderEntry type="library" name="picard_old" level="project" />
     <orderEntry type="library" name="dist" level="project" />
-    <orderEntry type="library" name="testng-5.5-jdk15" level="project" />
+    <orderEntry type="library" name="htsjdk_lib_dir" level="project" />
     <orderEntry type="library" name="guava-15.0" level="project" />
-    <orderEntry type="module" module-name="tests1" />
+    <orderEntry type="library" name="testng-5.5-jdk15" level="project" />
     <orderEntry type="module" module-name="htsjdk" />
+    <orderEntry type="module" module-name="tests1" />
     <orderEntry type="module" module-name="picard" />
   </component>
 </module>
